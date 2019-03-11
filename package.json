@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/PixelGaMERCaT/testApp/issues"
   },
-  "homepage": "https://github.com/PixelGaMERCaT/testApp#readme"
+  "homepage": "https://github.com/PixelGaMERCaT/testApp#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
 }

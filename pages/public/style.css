@@ -1,0 +1,71 @@
+#carousel-button {
+    color: black;
+}
+
+div#about{
+    margin-left: 100px;
+    margin-right: 100px;
+    margin-bottom: 100px;
+}
+
+#about {
+    text-align: center;
+}
+
+#user-img {
+    width: 30px;
+    height: 30px;
+}
+
+#user-profile {
+    border: 1px lightgrey solid;
+    margin-bottom: 10px;
+    margin-left: 200px;
+    margin-right: 200px;
+}
+
+#user-image {
+    padding: 100px;
+    margin-left: 100px;
+    width: 44%;
+    height: 44%;
+}
+
+#user-info {
+    float: right;
+    width: 400px;
+    padding: 50px;
+    font-size: 12pt;
+    text-align: left;
+}
+
+#info-headers {
+    font-size: 16pt;
+}
+
+#user-info-edit{
+    float: right;
+    width: 300px;
+    margin-right: 100px;
+}
+
+#user-image-edit {
+    float: left;
+    padding: 10px;
+    width: 30%;
+    height: 30%;
+}
+
+#user-profile-edit {
+    margin-right: 300px;
+    margin-left: 300px;
+}
+
+#carouselExampleIndicators {
+    width: 65%;
+    height: 65%;
+}
+
+#accordionExample {
+    width: 700px;
+}
