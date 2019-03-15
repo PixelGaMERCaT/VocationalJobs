@@ -19,16 +19,17 @@ app.get('/profile', (req, res) => {
 	res.sendFile(__dirname + "/pages/profile.html")});
 app.get('/edit_profile', (req, res) => {
 	res.sendFile(__dirname + "/pages/edit_profile.html")});
+app.get('/api/test', (req, res) => {
+	mongoClient.connect(mongoUrl, function(err, db) {
+		if (err) throw err;
+		var dbo = db.db("apps4rvaTest");
+		dbo.collection("users").findOne({user: "pixel"}, function(err, result) {
+			if (err) throw err;
+			console.log(result);
+			db.close();
+			});
+		}
+	);
+})
 
 app.listen(3000, () => console.log('Example app listening on port 3000!'));
-
-mongoClient.connect(mongoUrl, function(err, db) {
-	if (err) throw err;
-	var dbo = db.db("apps4rvaTest");
-	dbo.collection("users").findOne({user: "pixel"}, function(err, result) {
-		if (err) throw err;
-		console.log(result);
-		db.close();
-		});
-	}
-);
