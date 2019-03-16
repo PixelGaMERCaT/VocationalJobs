@@ -25,7 +25,7 @@ app.get('/api/test', (req, res) => {
 		var dbo = db.db("apps4rvaTest");
 		dbo.collection("users").findOne({user: "pixel"}, function(err, result) {
 			if (err) throw err;
-			console.log(result);
+			res.end(JSON.stringify(result))
 			db.close();
 			});
 		}
