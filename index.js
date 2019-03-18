@@ -6,29 +6,6 @@ const mongoClient = require('mongodb').MongoClient;
 var mongoUrl = "mongodb://192.168.1.193:27017/";
 var bodyParser = require('body-parser');
 
-var jsdom = require("jsdom");
-const { JSDOM } = jsdom;
-const { window } = new JSDOM();
-const { document } = (new JSDOM('')).window;
-global.document = document;
-
-var $ = jQuery = require('jquery')(window);
-
-var settings = {
-	"async": true,
-	"crossDomain": true,
-	"url": "/api/test?username=pixel",
-	"method": "GET",
-	"headers": {
-	  "cache-control": "no-cache",
-	  "Postman-Token": "2787ee09-af72-4dc1-a7f9-2a0997f6223c"
-	}
-  }
-  
-  $.ajax(settings).done(function (response) {
-	console.log(response);
-  });
-
 // Use req.query to read values!!
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -58,6 +35,5 @@ app.get('/api/test', (req, res) => {
 		}
 	);
 })
-
 app.listen(3000, () => console.log('App listening on port 3000!'));
 
