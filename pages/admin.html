@@ -4,13 +4,66 @@
         <title>Admin Page</title>
         <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
         <script src="database.js" type="text/javascript" mata="charset=utf-8"></script>
+        <style>
+            table {
+                font-family: arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            td, th {
+                border: 1px solid #dddddd;
+                text-align: left;
+                padding: 8px;
+            }
+        </style>
     </head>
     <body>
         <h1>Database Management</h1>
         <button onclick="showDatabase()">Show Database</button>
         
-        <div id=databaseTable>
-            
+        <div>
+            <table id="dbTable">
+                <tr>
+                    <th>Username</th>
+                    <th>Tag</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Age</th>
+                    <th>Field of Study</th>
+                    <th>Email</th>
+                    <th>Location</th>
+                    <th style="background-color: red; color: white">Remove</th>
+                </tr>
+            </table>
         </div>
+        <br>
+        <div>
+            <form id="makeUser">
+                <div class="form-group">
+                    <label for="username">Username:</label><br/>
+                    <input class="form-control" type="text" name="username" placeholder="Enter Username">
+                </div>
+                <div class="form-group">
+                    <label for="name">Name:</label><br/>
+                    <input class="form-control" type="text" name="name" placeholder="Enter Name">
+                </div>
+                <div class="form-group">
+                    <label for="age">Age:</label><br/>
+                    <input class="form-control" type="text" name="age" placeholder="Enter Age">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address:</label><br/>
+                    <input class="form-control" type="text" name="email" placeholder="Enter Email">
+                </div>
+                <div class="form-group">
+                    <label for="location">Location:</label><br/>
+                    <input class="form-control" type="text" name="location" placeholder="Enter Location"><br/>
+                <div class="form-group">
+                    <label for="study">Field of Study:</label><br/>
+                    <input class="form-control" type="text" name="study"placeholder="Enter Field of Study">
+                </div>
+                <input type="button" class="btn btn-primary" value="Save" onclick="makeUser()">
+            </form>
     </body>
 </html>
