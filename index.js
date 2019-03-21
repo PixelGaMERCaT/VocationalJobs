@@ -55,7 +55,7 @@ app.get('/api/makeUser', (req, res) => {
 	mongoClient.connect(mongoUrl, function (err, db) {
 		if (err) throw err;
 		var dbo = db.db('apps4rva');
-		dbo.collection('users').insertOne({username: req.query.username, tag: req.query.tag, name:req.query.name, age: req.query.age, email:req.query.email, location:req.query.location, study:req.query.study }, function (err, db) {
+		dbo.collection('users').insertOne({username: req.query.username, tag: req.query.tag, firstName:req.query.firstName, lastName:req.query.lastName, dob: req.query.dob, email:req.query.email, location:req.query.location, study:req.query.study, admin:req.query.admin}, function (err, db) {
 			if (err) throw err;
 		});
 	});

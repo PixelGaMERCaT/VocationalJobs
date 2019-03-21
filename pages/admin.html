@@ -20,8 +20,10 @@
     </head>
     <body>
         <h1>Database Management</h1>
-        <button onclick="showDatabase()">Show Database</button>
-        
+        <script>showDatabase()</script>
+        <div id='reload-button'>
+            <button onClick='showDatabase()' disabled>Loading...</button>
+        </div>
         <div>
             <table id="dbTable">
                 <tr>
@@ -29,15 +31,18 @@
                     <th>Tag</th>
                     <th>First Name</th>
                     <th>Last Name</th>
+                    <th>Date of Birth</th>
                     <th>Age</th>
                     <th>Field of Study</th>
                     <th>Email</th>
                     <th>Location</th>
+                    <th>Admin Level</th>
                     <th style="background-color: red; color: white">Remove</th>
                 </tr>
             </table>
         </div>
         <br>
+        <button id="makeRandomUser" onclick="generateRandomUser()">Generate Random User</button>
         <div>
             <form id="makeUser">
                 <div class="form-group">
@@ -45,16 +50,20 @@
                     <input class="form-control" type="text" name="username" placeholder="Enter Username">
                 </div>
                 <div class="form-group">
-                    <label for="name">Name:</label><br/>
-                    <input class="form-control" type="text" name="name" placeholder="Enter Name">
+                    <label for="firstName">First Name:</label><br/>
+                    <input class="form-control" type="text" name="firstName" placeholder="Enter First Name">
                 </div>
                 <div class="form-group">
-                    <label for="age">Age:</label><br/>
-                    <input class="form-control" type="text" name="age" placeholder="Enter Age">
+                    <label for="lastname">Last Name:</label><br/>
+                    <input class="form-control" type="text" name="lastName" placeholder="Enter Last Name">
+                </div>
+                <div class="form-group">
+                    <label for="dob">Date of Birth:</label><br/>
+                    <input class="form-control" type="date" name="dob" placeholder="Enter Date of Birth">
                 </div>
                 <div class="form-group">
                     <label for="email">Email Address:</label><br/>
-                    <input class="form-control" type="text" name="email" placeholder="Enter Email">
+                    <input class="form-control" type="email" name="email" placeholder="Enter Email">
                 </div>
                 <div class="form-group">
                     <label for="location">Location:</label><br/>
@@ -62,6 +71,10 @@
                 <div class="form-group">
                     <label for="study">Field of Study:</label><br/>
                     <input class="form-control" type="text" name="study"placeholder="Enter Field of Study">
+                </div>
+                <div class="form-group">
+                    <label for="admin">Admin Level:</label><br/>
+                    <input class="form-control" type="number" name="admin" placeholder="Enter Admin Level">
                 </div>
                 <input type="button" class="btn btn-primary" value="Save" onclick="makeUser()">
             </form>
