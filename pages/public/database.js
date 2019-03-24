@@ -53,6 +53,7 @@ function showDatabase() {
 			dbInfo[i].study + "</td><td>" +
 			dbInfo[i].email + "</td><td>" +
 			dbInfo[i].location + "</td><td>" +
+			dbInfo[i].certs + "</td><td>" +
 			dbInfo[i].admin + "</td><td><button onclick='removeUser(\"" + dbInfo[i].username + "\", \"" + dbInfo[i].tag + "\")'>X</button></tr>");
 		}
 		$("#reload-button").html("<button id='reload-button' onclick='showDatabase()'>Show Database</button>");
@@ -94,6 +95,19 @@ function removeUser(username, tag) {
 		"crossDomain": true,
 		"url": "/api/removeUser?username=" + username + "&tag=" + tag,
 		"method": "GET",
+		"headers": {
+		"cache-control": "no-cache",
+		}
+	}
+	$.ajax(settings);
+}
+
+function upload(){
+	var settings = {
+		"async": true,
+		"crossDomain": true,
+		"url": "/api/upload",
+		"method": "POST",
 		"headers": {
 		"cache-control": "no-cache",
 		}

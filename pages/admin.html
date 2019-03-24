@@ -36,6 +36,7 @@
                     <th>Field of Study</th>
                     <th>Email</th>
                     <th>Location</th>
+                    <th>Cert. File Names</th>
                     <th>Admin Level</th>
                     <th style="background-color: red; color: white">Remove</th>
                 </tr>
@@ -44,7 +45,8 @@
         <br>
         <button id="makeRandomUser" onclick="generateRandomUser()">Generate Random User</button>
         <div>
-            <form id="makeUser">
+            <form id="makeUser" action="/api/upload" enctype="multipart/form-data" method="post">
+                <input type="file" class="custom-file-input" id="customFile" name="pfp">
                 <div class="form-group">
                     <label for="username">Username:</label><br/>
                     <input class="form-control" type="text" name="username" placeholder="Enter Username">
@@ -76,7 +78,8 @@
                     <label for="admin">Admin Level:</label><br/>
                     <input class="form-control" type="number" name="admin" placeholder="Enter Admin Level">
                 </div>
-                <input type="button" class="btn btn-primary" value="Save" onclick="makeUser()">
+                <input type="button" class="btn btn-primary" value="Save">
+                <input type="submit" value="Submit">
             </form>
     </body>
 </html>

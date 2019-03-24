@@ -2,6 +2,9 @@
 const express = require('express');
 const app = express();
 const mongoClient = require('mongodb').MongoClient;
+const formidable = require('formidable');
+const md5File = require('md5-file');
+const fs = require('fs');
 
 var mongoUrl = "mongodb://localhost:27017/";
 var bodyParser = require('body-parser');
@@ -21,6 +24,10 @@ app.get('/edit_profile', (req, res) => {
 	res.sendFile(__dirname + "/pages/edit_profile.html")});
 app.get('/admin.html', (req, res) => {
 	res.sendFile(__dirname + "/pages/admin.html")});
+app.get('/sign_in', (req, res) => {
+	res.sendFile(__dirname + "/pages/sign_in.html")});
+app.get('/sign_up', (req, res) => {
+	res.sendFile(__dirname + "/pages/sign_up.html")});
 
 app.get('/loadProfile.js', (req, res) => {
 	res.sendFile(__dirname + "/pages/public/loadProfile.js")});
@@ -70,6 +77,22 @@ app.get('/api/removeUser', (req, res) => {
 			if (err) throw err;
 		});
 	});
+});
+
+app.post('/api/upload', (req, res) => {
+	var form = new formidable.IncomingForm();
+	form.parse(req)
+	.on('fileBegin', (name, file) => {
+		file.path = __dirname + "/uploads/" + file.name;
+	})
+		.on('file', (name, file) => {
+			md5File(file.path, (err, hash) => {
+				if (err) throw err;
+				fs.rename(file.path, __dirname + "/uploads/" + hash + ".png", function (err) {
+					if (err) throw err;
+				});
+			});
+		});
 });
 
 app.listen(3000, () => console.log('App listening on port 3000!'));

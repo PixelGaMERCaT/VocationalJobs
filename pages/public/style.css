@@ -43,22 +43,9 @@ div#about{
     font-size: 16pt;
 }
 
-#user-info-edit{
-    float: right;
-    width: 300px;
-    margin-right: 100px;
-}
-
 #user-image-edit {
     float: left;
     padding: 10px;
-    width: 30%;
-    height: 30%;
-}
-
-#user-profile-edit {
-    margin-right: 300px;
-    margin-left: 300px;
 }
 
 #carouselExampleIndicators {
