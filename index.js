@@ -81,18 +81,30 @@ app.get('/api/removeUser', (req, res) => {
 
 app.post('/api/upload', (req, res) => {
 	var form = new formidable.IncomingForm();
+	var filePath;
 	form.parse(req)
-	.on('fileBegin', (name, file) => {
-		file.path = __dirname + "/uploads/" + file.name;
-	})
+		.on('fileBegin', (name, file) => {
+			file.path = __dirname + "/uploads/" + file.name;
+		})
 		.on('file', (name, file) => {
 			md5File(file.path, (err, hash) => {
 				if (err) throw err;
+				filePath = __dirname + "/uploads/" + hash + ".png";
+				console.log(filePath);
 				fs.rename(file.path, __dirname + "/uploads/" + hash + ".png", function (err) {
 					if (err) throw err;
+					res.sendFile(filePath);
 				});
 			});
 		});
+});
+
+app.post('/api/makeUser', (req, res) => {
+	var form = new formidable.IncomingForm();
+	form.parse(req, function(err, fields) {
+		if (err) throw err;
+		console.log(fields);
+	});
 });
 
 app.listen(3000, () => console.log('App listening on port 3000!'));
