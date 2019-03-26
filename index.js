@@ -101,10 +101,22 @@ app.post('/api/upload', (req, res) => {
 
 app.post('/api/makeUser', (req, res) => {
 	var form = new formidable.IncomingForm();
-	form.parse(req, function(err, fields) {
-		if (err) throw err;
-		console.log(fields);
-	});
+	var userData = {"admin": 0, "tag": ((Math.random() * 9999) + 1).toFixed(0).toString(), "pfp":null, "certs":null};
+	form.parse(req)
+		.on('field', function(name, value) {
+			userData[name] = value;
+		})
+		.on('end', function() {
+			mongoClient.connect(mongoUrl, function(err, db) {
+				if (err) throw err;
+				console.log(userData);
+				var dbo = db.db('apps4rva');
+				dbo.collection('users').insertOne(userData, function(err) {
+					if (err) throw err;
+				});
+			});
+			res.sendFile(__dirname + "/pages/profile.html");
+		})
 });
 
 app.listen(3000, () => console.log('App listening on port 3000!'));
