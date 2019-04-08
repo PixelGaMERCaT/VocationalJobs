@@ -7,6 +7,7 @@ const md5File = require('md5-file');
 const fs = require('fs');
 const bCrypt = require('bcrypt');
 const crypto = require('crypto');
+const jimp = require('jimp');
 
 
 var mongoUrl = "mongodb://localhost:27017/";
@@ -50,7 +51,7 @@ app.get('/api/getUser', (req, res) => {
 	mongoClient.connect(mongoUrl, function (err, db) {
 		if (err) throw err;
 		var dbo = db.db("apps4rva");
-		dbo.collection("users").findOne({ username: req.query.username, tag: req.query.tag }, function (err, result) {
+		dbo.collection("users").findOne({ uid: req.query.uid }, function (err, result) {
 			if (err) throw err;
 			res.end(JSON.stringify(result));
 			db.close();
@@ -91,7 +92,45 @@ app.get('/api/removeUser', (req, res) => {
 	});
 });
 
-app.post('/api/upload', (req, res) => {
+app.post('/edit_profile', (req, res) => {
+	var userData;
+	var form = new formidable.IncomingForm();
+	form.parse(req)
+		.on('fileBegin', (name, file) => {
+			file.path = __dirname + "/temp/" + file.name;
+		})
+		.on('file', (file) => {
+			md5File(file.path, (err, hash) => {
+				if (err) throw err;
+				jimp.read(file.path, (err, lenna) => {
+					if (err) throw err;
+					lenna
+						.resize(256, 256)
+						.quality(60)
+						.write(__dirname + "/uploads/" + hash + ".jpg");
+					fs.unlink(file.path);
+				})
+			})
+		})
+		.on('field', (name, value) => {
+			userData[name] = value;
+		})
+		.on('end', () => {
+			mongoClient.connect(mongoUrl, (err, db) => {
+				if (err) throw err;
+				var dbo = db.db("apps4rva");
+				dbo.collection("users").updateOne({ uid: userData["uid"] }, { $set: { firstName: userData["name"].split(" ")[0], lastName: userData["name"].split(" ")[1], dob: userData["dob"], email: userData["email"], location: userData["location"], study: userData["study"] } })
+				//res.sendFile(__dirname + "/pages/edit_profile.html");
+			})
+		})
+})
+
+app.get("/api/pfp", (req, res) => {
+	res.sendFile(__dirname + "/uploads/" + res.query.name);
+})
+
+async function upload(req) {
+	return new Promise((resolve, reject) => {
 	var form = new formidable.IncomingForm();
 	var filePath;
 	form.parse(req)
@@ -105,11 +144,11 @@ app.post('/api/upload', (req, res) => {
 				console.log(filePath);
 				fs.rename(file.path, __dirname + "/uploads/" + hash + ".png", function (err) {
 					if (err) throw err;
-					res.sendFile(filePath);
 				});
 			});
 		});
-});
+	})
+}
 
 app.post('/api/makeUser', (req, res) => {
 	var form = new formidable.IncomingForm();
@@ -127,7 +166,6 @@ app.post('/api/makeUser', (req, res) => {
 app.post('/api/login', (req, res) => {
 	var form = new formidable.IncomingForm();
 	form.parse(req, (err, fields) => {
-		console.log(fields);
 		if (err) throw err;
 		console.log(fields);
 		login(fields["email"], fields["password"]).then((h) => {
@@ -196,9 +234,9 @@ async function register(userData) {
 }
 
 app.get('/api/test', (req, res) => {
-	bCrypt.compare('aw', test, (err, result) => {
+	mongoClient.connect(mongoUrl, { useNewUrlParser: true }, (err, db) => {
 		if (err) throw err;
-		console.log(result);
+		var dbo = db.db("apps4rva");
 	})
 });
 

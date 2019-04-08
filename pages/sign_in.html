@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <title>Homepage</title>
+    <title>Login</title>
     <script src="code.js" type="text/javascript" mata="charset=utf-8"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -14,19 +14,31 @@
         $(document).ready(function () {
             $("#submitButton").click(function (event) {
                 event.preventDefault();
-                console.log($("#email").val());
-                var data = new FormData($("#login"));
-                //data.append("email", $("#email").val());
-                //data.append("password", $("#pw").val());
+                //console.log($("#email").val());
+                var data = new FormData();
+                data.append("email", $("#email").val());
+                data.append("password", $("#pw").val());
+                //console.log(data.get('email'));
+                //console.log(data.get('password'));
                 
-                console.log(data);
+                //var request = new XMLHttpRequest();
+                //request.open("POST", "/api/login");
+                //request.send(data);
+                
                 $.ajax({
-                    url: "/api/login",
-                    method: "POST",
-                    data: data,
-                    enctype: 'multipart/form-data',
+                    method: 'POST',
+                    url: '/api/login',
+                    contentType: false,
                     processData: false,
+                    data: data,
+                    success: function(data) {
+                        console.log(data)
+                        localStorage.setItem("uid", data["uid"]);
+                        localStorage.setItem("token", data["token"]);
+                        window.location.href = "/profile";
+                    }
                 })
+                
             })
         });
     </script>

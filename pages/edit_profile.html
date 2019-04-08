@@ -3,13 +3,45 @@
 
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>Homepage</title>
+    <title>Edit Profile</title>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="testScript.js" type="text/javascript" mata="charset=utf-8"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <link href="/public/style.css" rel="stylesheet" type=text/css> <link rel="stylesheet"
         href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <script type="text/javascript">
+        $(document).ready(function () {
+            $("#submitButton").click(function (event) {
+                event.preventDefault();
+                //console.log($("#email").val());
+                var data = new FormData($("#editProfile"));
+                //data.append("email", $("#email").val());
+                //data.append("password", $("#pw").val());
+                //console.log(data.get('email'));
+                //console.log(data.get('password'));
+                
+                //var request = new XMLHttpRequest();
+                //request.open("POST", "/api/login");
+                //request.send(data);
+                
+                $.ajax({
+                    method: 'POST',
+                    url: '/edit_profile',
+                    contentType: false,
+                    processData: false,
+                    data: data,
+                    success: function(data) {
+                        console.log(data)
+                        localStorage.setItem("uid", data["uid"]);
+                        localStorage.setItem("token", data["token"]);
+                        window.location.href = "/profile";
+                    }
+                })
+                
+            })
+        });
+    </script>
 </head>
 
 <body>
@@ -53,7 +85,7 @@
     </nav>
     <br>
     <div class="container">
-        <form action="/api/userCreate" enctype="multipart/form-data" method="post">
+        <form action="/edit_profile" enctype="multipart/form-data" method="POST" id="editProfile">
             <div class="row">
                 <div class="col-md-6">
                     <img src="http://www.europe-together.eu/wp-content/themes/sd/images/user-placeholder.svg">
@@ -70,8 +102,8 @@
                         <input class="form-control" type="text" name="name" placeholder="Enter Name">
                     </div>
                     <div class="form-group">
-                        <label for="age">Age:</label><br>
-                        <input class="form-control" type="text" name="age" placeholder="Enter Age">
+                        <label for="dob">Age:</label><br>
+                        <input class="form-control" type="date" name="dob" placeholder="Enter Birthdate">
                     </div>
                     <div class="form-group">
                         <label for="email">Email Address:</label><br>
@@ -84,7 +116,7 @@
                             <label for="study">Field of Study:</label><br>
                             <input class="form-control" type="text" name="study" placeholder="Enter Field of Study">
                         </div>
-                        <input type="button" class="btn btn-primary" value="Save" onclick="editUser()">
+                        <input type="button" class="btn btn-primary" value="Save" id="submitButton">
                     </div>
                 </div>
             </div>
