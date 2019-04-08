@@ -8,8 +8,21 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <link href="style.css" rel="stylesheet" type="text/css">
+    <link href="/public/style.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script type="text/javascript">
+        $(document).ready( function () {
+            $('form#login').submit(function(evt) {
+                evt.preventDefault();
+                console.log($("form#login").serializeArray());
+                // $.ajax({
+                //     url: "/api/login",
+                //     contentType: "multipart/form-data",
+
+                // })
+            });
+        });
+    </script>
 </head>
 
 <body data-gr-c-s-loaded="true">
@@ -50,23 +63,23 @@
         </div>
     </nav><br /><br /><br />
     <div style="width: 50%; text-align: left; margin: auto;">
-        <form id="make-user" action="/api/makeUser" enctype="multipart/form-data" method="POST">
+        <form id="login" enctype="multipart/form-data">
             <div class="form-group">
-                <label for="exampleInputEmail1">Username/Email</label>
-                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
-                    placeholder="Username/Email">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" name="email" aria-describedby="emailHelp" placeholder="Email">
             </div>
             <div class="form-group">
-                <label for="exampleInputPassword1">Password</label>
-                <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" name="password" placeholder="Password">
             </div>
             <div class="form-group form-check">
                 <input type="checkbox" class="form-check-input" id="exampleCheck1">
                 <label class="form-check-label" for="exampleCheck1">Remember Me</label>
             </div>
-            <button type="submit" class="btn btn-primary" style="display: inline-block">Sign In</button>
+            <input type="submit" class="btn btn-primary" style="display: inline-block" value="Login">
             <p style="padding-top: 10px">Don't have an account? <a href="sign_up">Register Here</a></p>
         </form>
+        <p id="hi"></p>
     </div>
 </body>
 

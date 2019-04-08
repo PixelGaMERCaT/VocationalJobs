@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/PixelGaMERCaT/testApp#readme",
   "dependencies": {
+    "bcrypt": "^3.0.5",
     "express": "^4.16.4",
     "formidable": "^1.2.1",
     "jimp": "^0.6.0",
