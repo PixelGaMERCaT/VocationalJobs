@@ -126,9 +126,10 @@ app.post('/api/makeUser', (req, res) => {
 
 app.post('/api/login', (req, res) => {
 	var form = new formidable.IncomingForm();
-	console.log(req);
 	form.parse(req, (err, fields) => {
+		console.log(fields);
 		if (err) throw err;
+		console.log(fields);
 		login(fields["email"], fields["password"]).then((h) => {
 			res.send(h);
 			console.log(h);
