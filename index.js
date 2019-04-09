@@ -39,15 +39,18 @@ app.get('/sign_in', (req, res) => {
 app.get('/sign_up', (req, res) => {
 	res.sendFile(__dirname + "/pages/sign_up.html")
 });
+app.get('/test', (req, res) => {
+	res.sendFile(__dirname + "/pages/test.html")
+});
+app.get('/course/:course', (req, res) => {
+	res.sendFile(__dirname + "/pages/course_template.html")
+})
 
 app.get('/loadProfile.js', (req, res) => {
 	res.sendFile(__dirname + "/pages/public/loadProfile.js")
 });
 app.get('/database.js', (req, res) => {
 	res.sendFile(__dirname + "/pages/public/database.js")
-});
-app.get('/checkLogin.js', (req, res) => {
-	res.sendFile(__dirname + "/pages/public/checkLogin.js")
 });
 app.get('/logo', (req, res) => {
 	res.sendFile(__dirname + "/pages/public/logo.png")
@@ -97,6 +100,46 @@ app.get('/api/removeUser', (req, res) => {
 		});
 	});
 });
+
+app.post('/api/upload/cert', (req, res) => {
+	var uid;
+	var files = [];
+	var form = new formidable.IncomingForm();
+	form.parse(req)
+		.on('fileBegin', (name, file) => {
+			console.log("a file has appeared!")
+			file.path = __dirname + "/temp/" + file.name;
+		})
+		.on('file', (name, file) => {
+			md5File(file.path, (err, hash) => {
+				if (err) throw err;
+				jimp.read(file.path, (err, lenna) => {
+					if (err) throw err;
+					lenna.quality(60).write(__dirname + "/uploads/" + hash + ".jpg");
+					files.push(hash + ".jpg");
+				})
+			})
+		})
+		.on('field', (name, value) => {
+			console.log(name, value);
+			uid = value;
+		})
+		.on('end', () => {
+			mongoClient.connect(mongoUrl, (err, db) => {
+				if (err) throw err;
+				var dbo = db.db("apps4rva");
+				dbo.collection("users").findOne({ uid: uid }).then((json) => {
+					console.log(json);
+					if (json["certs"]) {
+						dbo.collection("users").updateOne({ uid: uid }, { $set: { certs: files.concat(json["certs"]) } });
+					} else {
+						dbo.collection("users").updateOne({ uid: uid }, { $set: { certs: files } });
+					}
+					res.send("success");
+				})
+			})
+		})
+})
 
 app.post('/edit_profile', (req, res) => {
 	var userData = {};
@@ -175,10 +218,8 @@ app.post('/api/login', (req, res) => {
 	var form = new formidable.IncomingForm();
 	form.parse(req, (err, fields) => {
 		if (err) throw err;
-		console.log(fields);
 		login(fields["email"], fields["password"]).then((h) => {
 			res.send(h);
-			console.log(h);
 		});
 	})
 })

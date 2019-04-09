@@ -2,6 +2,12 @@
     color: black;
 }
 
+.center {
+    display: block;
+    margin: auto;
+    width: 100%;
+}
+
 div#about{
     margin-left: 100px;
     margin-right: 100px;
@@ -19,10 +25,23 @@ div#about{
     margin-right: 200px;
 }
 
+.cert {
+    border: 1px lightgrey solid;
+}
+
+.cert-img {
+    width: 100%;
+}
+
+.cert-name {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin: auto;
+}
+
 #user-image {
-    padding: 100px;
-    width: 44%;
-    height: 44%;
+    margin: auto;
+    width: 75%;
 }
 
 #user-image-small, #pfp-small {
@@ -54,4 +73,9 @@ div#about{
 
 #accordionExample {
     width: 700px;
+}
+
+#certs {
+    margin-left: 200px;
+    margin-right: 200px;
 }

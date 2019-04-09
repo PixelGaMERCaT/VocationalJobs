@@ -1,67 +1,114 @@
-<!DOCTYPE html> <html>
-    <head>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-        <title>Homepage</title>
-        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-        <script src="checkLogin.js" type="text/javascript" meta="charset=utf-8"></script>
-        <script src="loadProfile.js" type="text/javascript" meta="charset=utf-8"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-        <link href="/public/style.css" rel="stylesheet" type=text/css>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    </head>
-    <body>
-        <nav class="navbar navbar-expand-sm navbar-light bg-light">
-                <a class="navbar-brand" href="/"><img style="height: 38px;" src="/logo"></a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
-                	<span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarsExample03">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Home<span class="sr-only">(current)</span></a>
-                    </li>
-                    <li class="nav-item">
-                         <a class="nav-link" href="certifications">Certifications</a>
-                    </li>
-                    <!--<li class="nav-item">
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Homepage</title>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="loadProfile.js" type="text/javascript" meta="charset=utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link href="/public/style.css" rel="stylesheet" type=text/css> <link rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script>
+        $(document).ready(function () {
+            $("#submitButton").click(function (event) {
+                var form = document.forms.namedItem("uploadCert");
+                event.preventDefault();
+                var data = new FormData(form);
+                data.append("uid", localStorage.getItem("uid"));
+
+                console.log(data.get("pfp"));
+                $.ajax({
+                    method: 'POST',
+                    url: 'api/upload/cert',
+                    contentType: false,
+                    processData: false,
+                    data: data,
+                    success: function (data) {
+                        //console.log(data)
+                        //localStorage.setItem("uid", data["uid"]);
+                        //localStorage.setItem("token", data["token"]);
+                        window.location.href = "/profile";
+                    }
+                })
+
+            })
+        });
+    </script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-sm navbar-light bg-light">
+        <a class="navbar-brand" href="/"><img style="height: 38px;" src="/logo"></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03"
+            aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarsExample03">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="certifications">Certifications</a>
+                </li>
+                <!--<li class="nav-item">
                          <a class="nav-link" href=""><img id="user-img" src="http://www.europe-together.eu/wp-content/themes/sd/images/user-placeholder.svg"></a>
                     </li>
                     -->
-                    <li class="nav-item dropdown active">
-                        <a class="nav-link dropdown-toggle" href="profile" id="dropdown03" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <img id="pfpSmall"> 
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown03">
-                            <a class="dropdown-item active" href="profile">Profile</a>
-                            <a class="dropdown-item" href="edit_profile">Edit Profile</a>
-                            <a class="dropdown-item" onclick="localStorage.clear()">Sign Out</a>
-                        </div>
-                    </li>
-				    <!--<li class="nav-item">
+                <li class="nav-item dropdown active">
+                    <a class="nav-link dropdown-toggle" href="profile" id="dropdown03" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                        <img id="pfpSmall">
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown03">
+                        <a class="dropdown-item active" href="profile">Profile</a>
+                        <a class="dropdown-item" href="edit_profile">Edit Profile</a>
+                        <a class="dropdown-item" onclick="localStorage.clear()">Sign Out</a>
+                    </div>
+                </li>
+                <!--<li class="nav-item">
                         <a class="nav-link" href="#">Templates</a>
                     </li>
 				    <li class="nav-item">
 		                <a class="nav-link" href="recipients">Recipients</a>
 	                </li>
 	                -->
-                </ul>
-            </div>
-        </nav><br/><br/>
-        <div id="user-profile">
-            <div id="pfp">
+            </ul>
+        </div>
+    </nav><br /><br />
+    <div id="user-profile">
+        <div class="row" style="padding: 2rem">
+            <div class="col" id="pfp">
 
             </div>
-            <div id="user-info">
+            <div class="col" id="user-data">
 
             </div>
         </div>
-        <div class="card" style="width: 18rem; margin-left: 200px">
+    </div>
+
+    <div id="certs">
+        <div class="row">
+            <form id="uploadCert" name="uploadCert">
+                <div class="custom-file" id="custom-file">
+                    <input type="file" class="custom-file-input" id="customFile" name="certs" multiple>
+                    <label class="custom-file-label" for="customFile">Choose File(s)</label>
+                    <input type="submit" class="btn btn-primary" value="Upload Certification(s)" id="submitButton">
+                </div>
+            </form>
+        </div>
+        <br><br>
+    </div>
+    <!-- <div class="card" style="width: 18rem; margin-left: 200px">
             <img class="card-img-top" src="https://via.placeholder.com/300" alt="Card image cap">
             <h5 class="card-title">Certification Name</h5>
             <div class="card-body">
                 <p class="card-text">Certification Details.</p>
             </div>
-        </div><br/><br/><br/>
-    </body>
+        </div> -->
+    <br><br><br>
+</body>
+
 </html>
