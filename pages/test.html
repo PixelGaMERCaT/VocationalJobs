@@ -1,6 +1,20 @@
-<!DOCTYPE html>
-	<html>
-		<body>
-			<p> hello </p>
-		</body>
-	</html>
+<script>
+        if (localStorage.getItem("uid") != null & localStorage.getItem("token") != null) {
+            $.ajax({
+                "url": "/api/getUser?uid=" + localStorage.getItem("uid"),
+                "method": "GET"
+            }).done((response) => {
+                $("#sign-in").replaceWith('<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="profile" id="dropdown03" data-toggle="dropdown"aria-haspopup="true" aria-expanded="false"><img id="user-image-small" src="/api/pfp?name=' + response.pfp + '"></a><div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown03"><a class="dropdown-item" href="profile">Profile</a><a class="dropdown-item" href="edit_profile">Edit Profile</a></div></li>')
+            })
+        }
+</script>
+<li class="nav-item dropdown">
+	<a class="nav-link dropdown-toggle" href="profile" id="dropdown03" data-toggle="dropdown"aria-haspopup="true" aria-expanded="false">
+		<img id="user-image-small" src="/api/pfp?name=' + response.pfp + '">
+	</a>
+	<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown03">
+		<a class="dropdown-item" href="profile">Profile</a>
+		<a class="dropdown-item" href="edit_profile">Edit Profile</a>
+		<a class="dropdown-item" onclick="localStorage.clear()">Sign Out</a>
+	</div>
+</li>

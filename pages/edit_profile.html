@@ -10,44 +10,53 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <link href="/public/style.css" rel="stylesheet" type=text/css> <link rel="stylesheet"
         href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-        <script type="text/javascript">
+    <script type="text/javascript">
         $(document).ready(function () {
             $("#submitButton").click(function (event) {
+                var form = document.forms.namedItem("edit");
                 event.preventDefault();
-                //console.log($("#email").val());
-                var data = new FormData($("#editProfile"));
-                //data.append("email", $("#email").val());
-                //data.append("password", $("#pw").val());
-                //console.log(data.get('email'));
-                //console.log(data.get('password'));
-                
-                //var request = new XMLHttpRequest();
-                //request.open("POST", "/api/login");
-                //request.send(data);
-                
+                var data = new FormData(form);
+                data.append("uid", localStorage.getItem("uid"));
+
+                console.log(data.get("pfp"));
                 $.ajax({
                     method: 'POST',
                     url: '/edit_profile',
                     contentType: false,
                     processData: false,
                     data: data,
-                    success: function(data) {
-                        console.log(data)
-                        localStorage.setItem("uid", data["uid"]);
-                        localStorage.setItem("token", data["token"]);
+                    success: function (data) {
+                        //console.log(data)
+                        //localStorage.setItem("uid", data["uid"]);
+                        //localStorage.setItem("token", data["token"]);
                         window.location.href = "/profile";
                     }
                 })
-                
+
             })
         });
+    </script>
+    <script>
+        $.ajax({
+            "url": "/api/getUser?uid=" + localStorage.getItem("uid"),
+            "method": "GET"
+        }).done((response) => {
+            $("#pfp-small").replaceWith("<img id='user-image-small' src='/api/pfp?name=" + response.pfp + "'>")
+            $("#pfp").replaceWith("<img src='/api/pfp?name=" + response.pfp + "'>");
+            console.log(response)
+            $("#name").attr("value", response.firstName + " " + response.lastName);
+            $("#dob").attr("value", response.dob);
+            $("#email").attr("value", response.email);
+            $("#location").attr("value", response.location);
+            $("#study").attr("value", response.study);
+            $("#submitButton").attr("disabled", false);
+        })
     </script>
 </head>
 
 <body>
     <nav class="navbar navbar-expand-sm navbar-light bg-light">
-        <a class="navbar-brand" href="/"><img style="width: 300px; height: 20px;"
-                src="https://cdn1.imggmi.com/uploads/2019/3/4/70f0c228d3a5ca8d8ba4e0e90e9532b1-full.png"></a>
+        <a class="navbar-brand" href="/"><img style="height: 38px;" src="/logo"></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03"
             aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -66,8 +75,9 @@
                     -->
                 <li class="nav-item dropdown active">
                     <a class="nav-link dropdown-toggle" href="profile" id="dropdown03" data-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false"><img id="user-img"
-                            src="http://www.europe-together.eu/wp-content/themes/sd/images/user-placeholder.svg"></a>
+                        aria-haspopup="true" aria-expanded="false">
+                        <img id="pfp-small">
+                    </a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown03">
                         <a class="dropdown-item" href="profile">Profile</a>
                         <a class="dropdown-item active" href="edit_profile">Edit Profile</a>
@@ -85,38 +95,38 @@
     </nav>
     <br>
     <div class="container">
-        <form action="/edit_profile" enctype="multipart/form-data" method="POST" id="editProfile">
+        <form enctype="multipart/form-data" method="POST" id="editProfile" name="edit">
             <div class="row">
                 <div class="col-md-6">
-                    <img src="http://www.europe-together.eu/wp-content/themes/sd/images/user-placeholder.svg">
+                    <img id="pfp" src="http://www.europe-together.eu/wp-content/themes/sd/images/user-placeholder.svg">
                     <br>
                     <br>
                     <div class="custom-file" id="custom-file">
-                        <input type="file" class="custom-file-input" id="customFile">
+                        <input type="file" class="custom-file-input" id="customFile" name="pfp">
                         <label class="custom-file-label" for="customFile">Choose File</label>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="name">Name:</label><br>
-                        <input class="form-control" type="text" name="name" placeholder="Enter Name">
+                        <input class="form-control" type="text" name="name" id="name" placeholder="Enter Name">
                     </div>
                     <div class="form-group">
-                        <label for="dob">Age:</label><br>
-                        <input class="form-control" type="date" name="dob" placeholder="Enter Birthdate">
+                        <label for="dob">Birthdate:</label><br>
+                        <input class="form-control" type="date" name="dob" id="dob">
                     </div>
                     <div class="form-group">
                         <label for="email">Email Address:</label><br>
-                        <input class="form-control" type="text" name="email" placeholder="Enter Email">
+                        <input class="form-control" type="text" name="email" id="email" placeholder="Enter Email">
                     </div>
                     <div class="form-group">
                         <label for="location">Location:</label><br>
-                        <input class="form-control" type="text" name="location" placeholder="Enter Location"><br>
+                        <input class="form-control" type="text" name="location" id="location" placeholder="Enter Location"><br>
                         <div class="form-group">
                             <label for="study">Field of Study:</label><br>
-                            <input class="form-control" type="text" name="study" placeholder="Enter Field of Study">
+                            <input class="form-control" type="text" name="study" id="study" placeholder="Enter Field of Study">
                         </div>
-                        <input type="button" class="btn btn-primary" value="Save" id="submitButton">
+                        <input type="submit" class="btn btn-primary" value="Save" id="submitButton" disabled=true>
                     </div>
                 </div>
             </div>

@@ -46,14 +46,20 @@ app.get('/loadProfile.js', (req, res) => {
 app.get('/database.js', (req, res) => {
 	res.sendFile(__dirname + "/pages/public/database.js")
 });
+app.get('/checkLogin.js', (req, res) => {
+	res.sendFile(__dirname + "/pages/public/checkLogin.js")
+});
+app.get('/logo', (req, res) => {
+	res.sendFile(__dirname + "/pages/public/logo.png")
+});
 
 app.get('/api/getUser', (req, res) => {
-	mongoClient.connect(mongoUrl, function (err, db) {
+	mongoClient.connect(mongoUrl, { useNewUrlParser: true }, function (err, db) {
 		if (err) throw err;
 		var dbo = db.db("apps4rva");
 		dbo.collection("users").findOne({ uid: req.query.uid }, function (err, result) {
 			if (err) throw err;
-			res.end(JSON.stringify(result));
+			res.send(result);
 			db.close();
 		});
 	});
@@ -93,40 +99,42 @@ app.get('/api/removeUser', (req, res) => {
 });
 
 app.post('/edit_profile', (req, res) => {
-	var userData;
+	var userData = {};
 	var form = new formidable.IncomingForm();
 	form.parse(req)
 		.on('fileBegin', (name, file) => {
 			file.path = __dirname + "/temp/" + file.name;
 		})
-		.on('file', (file) => {
+		.on('file', (name, file) => {
 			md5File(file.path, (err, hash) => {
-				if (err) throw err;
 				jimp.read(file.path, (err, lenna) => {
 					if (err) throw err;
+					var path = __dirname + "/uploads/" + hash + ".jpg";
 					lenna
-						.resize(256, 256)
+						.resize(512, 512)
 						.quality(60)
-						.write(__dirname + "/uploads/" + hash + ".jpg");
-					fs.unlink(file.path);
+						.write(path);
+					userData["pfp"] = hash + ".jpg";
 				})
 			})
 		})
 		.on('field', (name, value) => {
+			//console.log(name);
+			//console.log(value);
 			userData[name] = value;
 		})
 		.on('end', () => {
-			mongoClient.connect(mongoUrl, (err, db) => {
+			mongoClient.connect(mongoUrl, { useNewUrlParser: true }, (err, db) => {
 				if (err) throw err;
 				var dbo = db.db("apps4rva");
-				dbo.collection("users").updateOne({ uid: userData["uid"] }, { $set: { firstName: userData["name"].split(" ")[0], lastName: userData["name"].split(" ")[1], dob: userData["dob"], email: userData["email"], location: userData["location"], study: userData["study"] } })
-				//res.sendFile(__dirname + "/pages/edit_profile.html");
+				dbo.collection("users").updateOne({ uid: userData["uid"] }, { $set: { firstName: userData["name"].split(" ")[0], lastName: userData["name"].split(" ")[1], dob: userData["dob"], email: userData["email"], location: userData["location"], study: userData["study"], pfp: userData["pfp"] } })
+				res.send("success");
 			})
-		})
+		});
 })
 
 app.get("/api/pfp", (req, res) => {
-	res.sendFile(__dirname + "/uploads/" + res.query.name);
+	res.sendFile(__dirname + "/uploads/" + req.query.name);
 })
 
 async function upload(req) {
@@ -236,9 +244,33 @@ async function register(userData) {
 app.get('/api/test', (req, res) => {
 	mongoClient.connect(mongoUrl, { useNewUrlParser: true }, (err, db) => {
 		if (err) throw err;
+		var userData = { name: "Te st" };
 		var dbo = db.db("apps4rva");
+		dbo.collection("users").updateOne(
+			{ uid: "8eb0440b44a35ada09876662f18363497aaea2fc43de3dac33f511c83440246d" },
+			{ $set:
+				{
+					firstName: userData["name"].split(" ")[0],
+					lastName: userData["name"].split(" ")[1]
+				}
+			}
+		)
+		res.send('success');
 	})
 });
+
+app.post('/api/test', (req, res) => {
+	var userData = {};
+	var form = new formidable.IncomingForm();
+	form.parse(req)
+		.on("file", (name, file) => {
+			console.log(file.path);
+			res.sendFile(file.path);
+		})
+		.on("end", () => {
+			//res.send(userData);
+		})
+})
 
 
 

@@ -12,11 +12,6 @@ div#about{
     text-align: center;
 }
 
-#user-img {
-    width: 30px;
-    height: 30px;
-}
-
 #user-profile {
     border: 1px lightgrey solid;
     margin-bottom: 10px;
@@ -26,9 +21,13 @@ div#about{
 
 #user-image {
     padding: 100px;
-    margin-left: 100px;
     width: 44%;
     height: 44%;
+}
+
+#user-image-small, #pfp-small {
+    width: 32px;
+    height: 32px;
 }
 
 #user-info {
