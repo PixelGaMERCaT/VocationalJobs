@@ -5,33 +5,50 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Edit Profile</title>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="testScript.js" type="text/javascript" mata="charset=utf-8"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <link href="/public/style.css" rel="stylesheet" type=text/css> <link rel="stylesheet"
         href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <script type="text/javascript">
         $(document).ready(function () {
+            $("#customFile").change((e) => {
+                $("#fileLabel").text(e.target.files[0].name);
+            })
             $("#submitButton").click(function (event) {
                 var form = document.forms.namedItem("edit");
                 event.preventDefault();
                 var data = new FormData(form);
                 data.append("uid", localStorage.getItem("uid"));
-
-                console.log(data.get("pfp"));
-                $.ajax({
-                    method: 'POST',
-                    url: '/edit_profile',
-                    contentType: false,
-                    processData: false,
-                    data: data,
-                    success: function (data) {
-                        //console.log(data)
-                        //localStorage.setItem("uid", data["uid"]);
-                        //localStorage.setItem("token", data["token"]);
-                        window.location.href = "/profile";
-                    }
-                })
+                //regex from https://stackoverflow.com/questions/46155/how-to-validate-an-email-address-in-javascript
+                var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                if ($.trim(data.get("name")) == "" ||
+                    $.trim(data.get("dob")) == "" ||
+                    $.trim(data.get("email")) == "" ||
+                    $.trim(data.get("location")) == "" ||
+                    $.trim(data.get("study")) == "") {
+                        $("#alert").html(`
+                            <p style="color: red;">Please fill out all of the fields.</p>
+                        `);
+                } else if (!re.test($.trim(data.get("email").toLowerCase()))) {
+                    $("#alert").html(`
+                        <p style="color: red;">Please enter a valid email address.</p>
+                    `);
+                } else {
+                    $("#alert").html("<p style='color: red;'>Saving... please wait. You will automatically be redirected to your profile.</p>");
+                    $.ajax({
+                        method: 'POST',
+                        url: '/edit_profile',
+                        contentType: false,
+                        processData: false,
+                        data: data,
+                        success: function (data) {
+                            //console.log(data)
+                            //localStorage.setItem("uid", data["uid"]);
+                            //localStorage.setItem("token", data["token"]);
+                            window.location.href = "/profile";
+                        }
+                    })
+                }
 
             })
         });
@@ -81,7 +98,9 @@
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown03">
                         <a class="dropdown-item" href="profile">Profile</a>
                         <a class="dropdown-item active" href="edit_profile">Edit Profile</a>
+                        <a class="dropdown-item" onclick="localStorage.clear(); window.location.href='/sign_in';">Sign Out</a>
                     </div>
+                    
                 </li>
                 <!--<li class="nav-item">
                         <a class="nav-link" href="#">Templates</a>
@@ -102,14 +121,14 @@
                     <br>
                     <br>
                     <div class="custom-file" id="custom-file">
-                        <input type="file" class="custom-file-input" id="customFile" name="pfp">
-                        <label class="custom-file-label" for="customFile">Choose File</label>
+                        <input type="file" class="custom-file-input" id="customFile" name="pfp" required>
+                        <label class="custom-file-label" for="customFile" id="fileLabel">Choose File</label>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="name">Name:</label><br>
-                        <input class="form-control" type="text" name="name" id="name" placeholder="Enter Name">
+                        <input class="form-control" type="text" name="name" id="name" placeholder="Enter Name" required>
                     </div>
                     <div class="form-group">
                         <label for="dob">Birthdate:</label><br>
@@ -117,16 +136,20 @@
                     </div>
                     <div class="form-group">
                         <label for="email">Email Address:</label><br>
-                        <input class="form-control" type="text" name="email" id="email" placeholder="Enter Email">
+                        <input class="form-control" type="email" name="email" id="email" placeholder="Enter Email" required>
                     </div>
                     <div class="form-group">
                         <label for="location">Location:</label><br>
-                        <input class="form-control" type="text" name="location" id="location" placeholder="Enter Location"><br>
+                        <input class="form-control" type="text" name="location" id="location" placeholder="Enter Location" required><br>
                         <div class="form-group">
                             <label for="study">Field of Study:</label><br>
-                            <input class="form-control" type="text" name="study" id="study" placeholder="Enter Field of Study">
+                            <input class="form-control" type="text" name="study" id="study" placeholder="Enter Field of Study" required>
                         </div>
                         <input type="submit" class="btn btn-primary" value="Save" id="submitButton" disabled=true>
+                    </div>
+                    <br>
+                    <div id="alert">
+
                     </div>
                 </div>
             </div>

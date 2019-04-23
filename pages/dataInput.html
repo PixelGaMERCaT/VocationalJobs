@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Edit Profile</title>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="testScript.js" type="text/javascript" mata="charset=utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link href="/public/style.css" rel="stylesheet" type=text/css> <link rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#submitButton").click(function (event) {
+                var form = document.forms.namedItem("dataInput");
+                event.preventDefault();
+                var data = new FormData(form);
+                data.append("blurb", $("#blurb").val());
+
+                //console.log(data.get("pfp"));
+                $.ajax({
+                    method: 'POST',
+                    url: '/dataInput',
+                    contentType: false,
+                    processData: false,
+                    data: data,
+                    success: function (data) {
+                        //console.log(data)
+                        //localStorage.setItem("uid", data["uid"]);
+                        //localStorage.setItem("token", data["token"]);
+                        //window.location.href = "/profile";
+                    }
+                })
+
+            })
+        });
+    </script>
+    <script>
+        $.ajax({
+            "url": "/api/getUser?uid=" + localStorage.getItem("uid"),
+            "method": "GET"
+        }).done((response) => {
+            $("#pfp-small").replaceWith("<img id='user-image-small' src='/api/pfp?name=" + response.pfp + "'>")
+            $("#pfp").replaceWith("<img src='/api/pfp?name=" + response.pfp + "'>");
+            console.log(response)
+            $("#name").attr("value", response.firstName + " " + response.lastName);
+            $("#dob").attr("value", response.dob);
+            $("#email").attr("value", response.email);
+            $("#location").attr("value", response.location);
+            $("#study").attr("value", response.study);
+            $("#submitButton").attr("disabled", false);
+        })
+    </script>
+</head>
+
+<body>
+    <h1>Don't submit more than once pls thanks</h1>
+    <form name="dataInput">
+        <label for="url">Url</label>
+        <input type="text" id="url" name="url" placeholder="URL">
+        <br>
+        <label for="jobName">Job Name</label>
+        <input type="text" id="jobName" name="jobName" placeholder="Job Name">
+        <br>
+        <label for="jobID">Job Identifier</label>
+        <input type="text" id="jobID" name="jobID" placeholder="Job ID">
+        <br>
+        <label for="hours">Hours</label>
+        <input type="text" id="hours" name="hours" placeholder="Put -1 for N/A">
+        <br>
+        <label for="modules">Modules</label>
+        <input type="number" id="modules" name="modules" placeholder="Put -1 for N/A">
+        <br>
+        <label for="cost">Cost</label>
+        <input type="number" id="cost" name="cost" placeholder="Dollars, put -1 for N/A">
+        <br>
+        <p>Enter blurb:</p>
+        <textarea rows="4" cols="50" id="blurb"></textarea>
+        <br>
+        <input type="submit" value="Submit" id="submitButton"> 
+        
+    </form>
+</body>
+
+</html>

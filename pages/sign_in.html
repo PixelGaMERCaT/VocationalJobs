@@ -14,31 +14,37 @@
         $(document).ready(function () {
             $("#submitButton").click(function (event) {
                 event.preventDefault();
-                //console.log($("#email").val());
-                var data = new FormData();
-                data.append("email", $("#email").val());
-                data.append("password", $("#pw").val());
-                //console.log(data.get('email'));
-                //console.log(data.get('password'));
-                
-                //var request = new XMLHttpRequest();
-                //request.open("POST", "/api/login");
-                //request.send(data);
-                
-                $.ajax({
-                    method: 'POST',
-                    url: '/api/login',
-                    contentType: false,
-                    processData: false,
-                    data: data,
-                    success: function(data) {
-                        console.log(data)
-                        localStorage.setItem("uid", data["uid"]);
-                        localStorage.setItem("token", data["token"]);
-                        window.location.href = "/profile";
-                    }
-                })
-                
+                var form = document.forms.namedItem("loginForm");
+                var data = new FormData(form);
+                var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                if ($.trim(data.get("email")) == "" ||
+                    $.trim(data.get("password")) == "") {
+                        $("#alert").html(`
+                            <p style="color: red;">Please fill out all of the fields.</p>
+                        `);
+                } else if (!re.test($.trim(data.get("email").toLowerCase()))) {
+                    $("#alert").html(`
+                        <p style="color: red;">Please enter a valid email address.</p>
+                    `);
+                } else {
+                    $.ajax({
+                        method: 'POST',
+                        url: '/api/login',
+                        contentType: false,
+                        processData: false,
+                        data: data,
+                        success: function(data) {
+                            if (data.uid == undefined) {
+                                $("#alert").html(`
+                                <p style="color: red">` + data.status + `</p>`); 
+                            } else {
+                                localStorage.setItem("uid", data["uid"]);
+                                localStorage.setItem("token", data["token"]);
+                                window.location.href = "/profile";
+                            }
+                        }
+                    })
+                }
             })
         });
     </script>
@@ -96,6 +102,9 @@
             </div> -->
             <button id="submitButton" class="btn btn-primary" style="display: inline-block">Login</button>
             <!-- <input id="submitButton" type="submit" class="btn btn-primary" style="display: inline-block" value="Login"> -->
+            <div id="alert">
+                
+            </div>
             <p style="padding-top: 10px">Don't have an account? <a href="sign_up">Register Here</a></p>
         </form>
     </div>

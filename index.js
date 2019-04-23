@@ -44,7 +44,10 @@ app.get('/test', (req, res) => {
 });
 app.get('/course/:course', (req, res) => {
 	res.sendFile(__dirname + "/pages/course_template.html")
-})
+});
+app.get('/dataInput', (req, res) => {
+	res.sendFile(__dirname + "/pages/dataInput.html");
+});
 
 app.get('/loadProfile.js', (req, res) => {
 	res.sendFile(__dirname + "/pages/public/loadProfile.js")
@@ -55,6 +58,9 @@ app.get('/database.js', (req, res) => {
 app.get('/logo', (req, res) => {
 	res.sendFile(__dirname + "/pages/public/logo.png")
 });
+app.get('/courses.json', (req, res) => {
+	res.sendFile(__dirname + "/pages/public/courses.json");
+})
 
 app.get('/api/getUser', (req, res) => {
 	mongoClient.connect(mongoUrl, { useNewUrlParser: true }, function (err, db) {
@@ -65,6 +71,34 @@ app.get('/api/getUser', (req, res) => {
 			res.send(result);
 			db.close();
 		});
+	});
+})
+
+app.get('/courses/:course', (req, res) => {
+	fs.readFile("courses.json", (err, json) => {
+		var courses = JSON.parse(json);
+		var course = courses.find(obj => {
+			return obj.jobID == req.params.course;
+		})
+		if (course == undefined) {
+			res.send('404');
+		} else {
+			res.sendFile(__dirname + '/pages/course_template.html');
+		}
+	});
+})
+
+app.get('/courses/:course/data', (req, res) => {
+	fs.readFile("courses.json", (err, json) => {
+		var courses = JSON.parse(json);
+		var course = courses.find(obj => {
+			return obj.jobID == req.params.course;
+		})
+		if (course == undefined) {
+			res.send('404');
+		} else {
+			res.send(course);
+		}
 	});
 })
 
@@ -84,7 +118,7 @@ app.get('/api/makeUser', (req, res) => {
 	mongoClient.connect(mongoUrl, function (err, db) {
 		if (err) throw err;
 		var dbo = db.db('apps4rva');
-		dbo.collection('users').insertOne({ username: req.query.username, tag: req.query.tag, firstName: req.query.firstName, lastName: req.query.lastName, dob: req.query.dob, email: req.query.email, location: req.query.location, study: req.query.study, admin: req.query.admin }, function (err, db) {
+		dbo.collection('users').insertOne({tag: req.query.tag, firstName: req.query.firstName, lastName: req.query.lastName, dob: req.query.dob, email: req.query.email, location: req.query.location, study: req.query.study, admin: req.query.admin }, function (err, db) {
 			if (err) throw err;
 		});
 	});
@@ -94,83 +128,108 @@ app.get('/api/removeUser', (req, res) => {
 	mongoClient.connect(mongoUrl, function (err, db) {
 		if (err) throw err;
 		var dbo = db.db('apps4rva');
-		console.log({ username: req.query.username, tag: req.query.tag });
-		dbo.collection('users').deleteOne({ username: req.query.username, tag: parseInt(req.query.tag) }, function (err, db) {
+		dbo.collection('users').deleteOne({ email: req.query.email, tag: parseInt(req.query.tag) }, function (err, db) {
 			if (err) throw err;
 		});
 	});
 });
 
+// app.post('/dataInput', (req, res) => {
+// 	var data = {}
+// 	var form = new formidable.IncomingForm();
+// 	form.parse(req)
+// 		.on('field', (name, value) => {
+// 			data[name] = value;
+// 		})
+// 		.on('end', () => {
+// 			fs.appendFile(__dirname + "/courses.json", JSON.stringify(data) + ",\n\t", (err) => {
+// 				if (err) throw err;
+// 			})
+// 		});
+// });
+
 app.post('/api/upload/cert', (req, res) => {
 	var uid;
 	var files = [];
 	var form = new formidable.IncomingForm();
-	form.parse(req)
-		.on('fileBegin', (name, file) => {
-			console.log("a file has appeared!")
-			file.path = __dirname + "/temp/" + file.name;
-		})
-		.on('file', (name, file) => {
-			md5File(file.path, (err, hash) => {
-				if (err) throw err;
-				jimp.read(file.path, (err, lenna) => {
+	try {
+		form.parse(req)
+			.on('fileBegin', (name, file) => {
+				console.log("a file has appeared!")
+				file.path = __dirname + "/temp/" + file.name;
+			})
+			.on('file', (name, file) => {
+				md5File(file.path, (err, hash) => {
 					if (err) throw err;
-					lenna.quality(60).write(__dirname + "/uploads/" + hash + ".jpg");
-					files.push(hash + ".jpg");
+					jimp.read(file.path, (err, lenna) => {
+						try {
+							lenna.quality(60).write(__dirname + "/uploads/" + hash + ".jpg");
+							files.push(hash + ".jpg");
+						} catch {
+
+						}
+					})
 				})
 			})
-		})
-		.on('field', (name, value) => {
-			console.log(name, value);
-			uid = value;
-		})
-		.on('end', () => {
-			mongoClient.connect(mongoUrl, (err, db) => {
-				if (err) throw err;
-				var dbo = db.db("apps4rva");
-				dbo.collection("users").findOne({ uid: uid }).then((json) => {
-					console.log(json);
-					if (json["certs"]) {
-						dbo.collection("users").updateOne({ uid: uid }, { $set: { certs: files.concat(json["certs"]) } });
-					} else {
-						dbo.collection("users").updateOne({ uid: uid }, { $set: { certs: files } });
-					}
-					res.send("success");
+			.on('field', (name, value) => {
+				console.log(name, value);
+				uid = value;
+			})
+			.on('end', () => {
+				mongoClient.connect(mongoUrl, (err, db) => {
+					if (err) throw err;
+					var dbo = db.db("apps4rva");
+					dbo.collection("users").findOne({ uid: uid }).then((json) => {
+						var newList = [...new Set(files.concat(json.certs))];
+
+						if (json["certs"]) {
+							dbo.collection("users").updateOne({ uid: uid }, { $set: { certs: newList } });
+						} else {
+							dbo.collection("users").updateOne({ uid: uid }, { $set: { certs: files } });
+						}
+						res.send("success");
+					})
 				})
 			})
-		})
+	} catch {}
 })
 
 app.post('/edit_profile', (req, res) => {
 	var userData = {};
+	var pathToDelete;
 	var form = new formidable.IncomingForm();
 	form.parse(req)
 		.on('fileBegin', (name, file) => {
-			file.path = __dirname + "/temp/" + file.name;
+			if (file.name != "") {
+				file.path = __dirname + "/temp/" + file.name;
+				pathToDelete = file.path;
+			}
 		})
 		.on('file', (name, file) => {
-			md5File(file.path, (err, hash) => {
-				jimp.read(file.path, (err, lenna) => {
-					if (err) throw err;
-					var path = __dirname + "/uploads/" + hash + ".jpg";
-					lenna
-						.resize(512, 512)
-						.quality(60)
-						.write(path);
-					userData["pfp"] = hash + ".jpg";
+			if (file.name != "") {
+				md5File(file.path, (err, hash) => {
+					jimp.read(file.path, (err, lenna) => {
+						if (err) throw err;
+						var path = __dirname + "/uploads/" + hash + ".jpg";
+						lenna
+							.resize(512, 512)
+							.quality(60)
+							.write(path);
+						userData["pfp"] = hash + ".jpg";
+						fs.unlinkSync(pathToDelete);
+					})
 				})
-			})
+			}
 		})
 		.on('field', (name, value) => {
-			//console.log(name);
-			//console.log(value);
 			userData[name] = value;
 		})
 		.on('end', () => {
 			mongoClient.connect(mongoUrl, { useNewUrlParser: true }, (err, db) => {
 				if (err) throw err;
 				var dbo = db.db("apps4rva");
-				dbo.collection("users").updateOne({ uid: userData["uid"] }, { $set: { firstName: userData["name"].split(" ")[0], lastName: userData["name"].split(" ")[1], dob: userData["dob"], email: userData["email"], location: userData["location"], study: userData["study"], pfp: userData["pfp"] } })
+				if (userData["pfp"] == undefined) dbo.collection("users").updateOne({ uid: userData["uid"] }, { $set: { firstName: userData["name"].split(" ")[0], lastName: userData["name"].split(" ")[1], dob: userData["dob"], email: userData["email"], location: userData["location"], study: userData["study"] } });
+				else dbo.collection("users").updateOne({ uid: userData["uid"] }, { $set: { firstName: userData["name"].split(" ")[0], lastName: userData["name"].split(" ")[1], dob: userData["dob"], email: userData["email"], location: userData["location"], study: userData["study"], pfp: userData["pfp"] } });
 				res.send("success");
 			})
 		});
@@ -182,35 +241,35 @@ app.get("/api/pfp", (req, res) => {
 
 async function upload(req) {
 	return new Promise((resolve, reject) => {
-	var form = new formidable.IncomingForm();
-	var filePath;
-	form.parse(req)
-		.on('fileBegin', (name, file) => {
-			file.path = __dirname + "/uploads/" + file.name;
-		})
-		.on('file', (name, file) => {
-			md5File(file.path, (err, hash) => {
-				if (err) throw err;
-				filePath = __dirname + "/uploads/" + hash + ".png";
-				console.log(filePath);
-				fs.rename(file.path, __dirname + "/uploads/" + hash + ".png", function (err) {
+		var form = new formidable.IncomingForm();
+		var filePath;
+		form.parse(req)
+			.on('fileBegin', (name, file) => {
+				file.path = __dirname + "/uploads/" + file.name;
+			})
+			.on('file', (name, file) => {
+				md5File(file.path, (err, hash) => {
 					if (err) throw err;
+					filePath = __dirname + "/uploads/" + hash + ".png";
+					console.log(filePath);
+					fs.rename(file.path, __dirname + "/uploads/" + hash + ".png", function (err) {
+						if (err) throw err;
+					});
 				});
 			});
-		});
 	})
 }
 
-app.post('/api/makeUser', (req, res) => {
+app.post('/api/make_user', (req, res) => {
 	var form = new formidable.IncomingForm();
-	var userData = { "admin": 0, "pfp": __dirname + "/pages/public/user-placeholder.svg", "certs": null };
+	var userData = { "admin": 0, "pfp": "user-placeholder.svg", "certs": null };
 	form.parse(req)
 		.on('field', function (name, value) {
 			userData[name] = value;
 		})
 		.on('end', function () {
 			register(userData);
-			res.sendFile(__dirname + "/pages/profile.html");
+			res.sendFile(__dirname + "/pages/sign_in.html");
 		})
 });
 
@@ -229,17 +288,21 @@ async function login(email, password) {
 		mongoClient.connect(mongoUrl, { useNewUrlParser: true }, function (err, db) {
 			if (err) throw err;
 			var dbo = db.db("apps4rva");
-			dbo.collection("users").findOne({ email: email }).then(function(json) {
-				bCrypt.compare(password, json["password"], (err, result) => {
-					if (err) throw err;
-					if (result) {
-						var token = crypto.randomBytes(32).toString('hex');
-						dbo.collection("users").updateOne({ _id: json["_id"] }, { $set: { token: token } });
-						resolve({ status: "logged in", uid: json["uid"], token: token });
-					} else {
-						resolve({ status: "incorrect username or password" });
-					}
-				})
+			dbo.collection("users").findOne({ email: email }).then(function (json) {
+				if (json == null) {
+					resolve({ status: "No user exists with that email." });
+				} else {
+					bCrypt.compare(password, json["password"], (err, result) => {
+						if (err) throw err;
+						if (result) {
+							var token = crypto.randomBytes(32).toString('hex');
+							dbo.collection("users").updateOne({ _id: json["_id"] }, { $set: { token: token } });
+							resolve({ status: "logged in", uid: json["uid"], token: token });
+						} else {
+							resolve({ status: "Incorrect email or password." });
+						}
+					})
+				}
 			})
 		})
 	});
@@ -250,33 +313,13 @@ async function register(userData) {
 		mongoClient.connect(mongoUrl, { useNewUrlParser: true }, function (err, db) {
 			if (err) throw err;
 			var dbo = db.db("apps4rva");
-			dbo.collection("users").find({ username: userData["username"] }).project({ _id: 0, tag: 1 }).toArray().then((json) => {
-				var tag = Math.floor((Math.random() * 9999) + 1);
-				var tagExists = true;
-				if (json.length >= 9999) {
-					reject(new Error("Username full!"))
-				} else {
-					while (tagExists) {
-						console.log(json.values());
-						console.log(tag);
-						tagExists = false;
-						for (let elements of json.values()) {
-							if (elements["tag"] == tag) tagExists = true;
-						}
-					}
-					userData["tag"] = tag;
-					userData["uid"] = crypto.randomBytes(32).toString('hex');
-					console.log(userData);
-					bCrypt.hash(userData["password"], 10, (err, hash) => {
-						if (err) throw err;
-						userData["password"] = hash;
-						dbo.collection("users").insertOne(userData);
-						dbo.collection("users").findOne({username: "tset"}).then((json) => {
-							console.log(json["password"]);
-						});
-						resolve("User created!");
-					});
-				}
+			userData["uid"] = crypto.randomBytes(32).toString('hex');
+			console.log(userData);
+			bCrypt.hash(userData["password"], 10, (err, hash) => {
+				if (err) throw err;
+				userData["password"] = hash;
+				dbo.collection("users").insertOne(userData);
+				resolve("User created!");
 			});
 		})
 	})
@@ -289,7 +332,8 @@ app.get('/api/test', (req, res) => {
 		var dbo = db.db("apps4rva");
 		dbo.collection("users").updateOne(
 			{ uid: "8eb0440b44a35ada09876662f18363497aaea2fc43de3dac33f511c83440246d" },
-			{ $set:
+			{
+				$set:
 				{
 					firstName: userData["name"].split(" ")[0],
 					lastName: userData["name"].split(" ")[1]
@@ -312,9 +356,5 @@ app.post('/api/test', (req, res) => {
 			//res.send(userData);
 		})
 })
-
-
-
-
 
 app.listen(3000, () => console.log('App listening on port 3000!'));

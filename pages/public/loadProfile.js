@@ -29,7 +29,7 @@ $.ajax(settings).done(function (response) {
         for (var j = 0; j < cols; j++) {
             console.log(i,j);
             html += `<div class="cert col-md-3">
-            <img class="cert-img" placeholder="a certification" src="/api/pfp?name=` + dbInfo.certs[i*4+j] + `">
+            <img class="cert-img" placeholder="a certification" onclick="window.open('/api/pfp?name=` + dbInfo.certs[i*4+j] + `', '_blank');" src="/api/pfp?name=` + dbInfo.certs[i*4+j] + `">
         </div>
         `
         }
