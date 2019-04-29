@@ -91,6 +91,7 @@ app.get('/courses/:course', (req, res) => {
 app.get('/courses/:course/data', (req, res) => {
 	fs.readFile("courses.json", (err, json) => {
 		var courses = JSON.parse(json);
+		console.log(req.params.course);
 		var course = courses.find(obj => {
 			return obj.jobID == req.params.course;
 		})
